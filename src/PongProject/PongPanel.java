@@ -55,18 +55,17 @@ public class PongPanel extends JPanel implements ActionListener {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g); // Limpiar la pantalla
-        paintDottedLine(g); // Dibujar la línea punteada
+        super.paintComponent(g); 
+        paintDottedLine(g); 
 
-        // Dibujar la pelota
+       
         g.setColor(Color.WHITE);
         g.fillOval(ballX, ballY, 20, 20);
     }
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        update(); // Actualizar la lógica del juego
-        repaint(); // Redibujar el panel
+        update(); 
+        repaint(); 
     }
 }
-
