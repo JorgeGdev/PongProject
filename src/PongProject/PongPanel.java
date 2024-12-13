@@ -16,32 +16,50 @@ public class PongPanel extends JPanel implements ActionListener {
     private final static Color BACKGROUND_COLOUR = Color.BLACK;
     private final static int TIMER_DELAY = 5;
 
-    private boolean gameInitialised = false; // Nuevo flag para inicialización
-    private Ball ball; // Variable para la bola
+    private GameState gameState; // Estado del juego
+    private Ball ball;
+    private Paddle paddle1; // Paddle del jugador 1
+    private Paddle paddle2; // Paddle del jugador 2
 
     public PongPanel() {
         setBackground(BACKGROUND_COLOUR);
         Timer timer = new Timer(TIMER_DELAY, this);
         timer.start();
+
+        // Inicializar el estado inicial del juego
+        gameState = GameState.INITIALISING;
     }
 
-    // Método para inicializar los objetos del juego
+    // Crear los objetos del juego
     public void createObjects() {
-        ball = new Ball(getWidth(), getHeight()); // Crear la bola con las dimensiones del panel
-        ball.setXVelocity(2); // Velocidad inicial en X
-        ball.setYVelocity(2); // Velocidad inicial en Y
+        ball = new Ball(getWidth(), getHeight());
+        ball.setXVelocity(2);
+        ball.setYVelocity(2);
+
+        // Crear los paddles
+        paddle1 = new Paddle(Player.One, getWidth(), getHeight());
+        paddle2 = new Paddle(Player.Two, getWidth(), getHeight());
     }
 
-    // Método para actualizar la lógica del juego
     private void update() {
-        if (!gameInitialised) {
-            createObjects(); // Inicializar los objetos si no está inicializado
-            gameInitialised = true;
+        switch (gameState) {
+            case INITIALISING: {
+                createObjects();
+                gameState = GameState.PLAYING;
+                break;
+            }
+            case PLAYING: {
+                // Lógica del juego
+                ball.move(getWidth(), getHeight());
+                break;
+            }
+            case GAMEOVER: {
+                // Lógica para cuando el juego termina
+                break;
+            }
         }
-        ball.move(getWidth(), getHeight()); // Actualizar la posición de la bola
     }
 
-    // Método para dibujar la línea punteada
     private void paintDottedLine(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
         Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
@@ -51,7 +69,6 @@ public class PongPanel extends JPanel implements ActionListener {
         g2d.dispose();
     }
 
-    // Método genérico para dibujar sprites
     private void paintSprite(Graphics g, Sprite sprite) {
         g.setColor(sprite.getColor());
         g.fillRect(sprite.getXPosition(), sprite.getYPosition(), sprite.getWidth(), sprite.getHeight());
@@ -61,8 +78,12 @@ public class PongPanel extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         paintDottedLine(g);
-        if (gameInitialised) {
-            paintSprite(g, ball); // Dibujar la bola
+
+        // Dibujar los objetos solo si no estamos inicializando
+        if (gameState != GameState.INITIALISING) {
+            paintSprite(g, ball);
+            paintSprite(g, paddle1); // Dibujar paddle 1
+            paintSprite(g, paddle2); // Dibujar paddle 2
         }
     }
 
