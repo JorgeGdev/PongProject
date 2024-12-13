@@ -16,11 +16,8 @@ public class PongPanel extends JPanel implements ActionListener {
     private final static Color BACKGROUND_COLOUR = Color.BLACK;
     private final static int TIMER_DELAY = 5;
 
-    // Coordenadas de la pelota
-    private int ballX = 100;
-    private int ballY = 100;
-    private int ballDeltaX = 2;
-    private int ballDeltaY = 2;
+    private boolean gameInitialised = false; // Nuevo flag para inicialización
+    private Ball ball; // Variable para la bola
 
     public PongPanel() {
         setBackground(BACKGROUND_COLOUR);
@@ -28,19 +25,20 @@ public class PongPanel extends JPanel implements ActionListener {
         timer.start();
     }
 
-    // Método personalizado para actualizar la lógica del juego
-    private void update() {
-        // Actualizar coordenadas de la pelota
-        ballX += ballDeltaX;
-        ballY += ballDeltaY;
+    // Método para inicializar los objetos del juego
+    public void createObjects() {
+        ball = new Ball(getWidth(), getHeight()); // Crear la bola con las dimensiones del panel
+        ball.setXVelocity(2); // Velocidad inicial en X
+        ball.setYVelocity(2); // Velocidad inicial en Y
+    }
 
-        // Detectar colisiones con los bordes del panel
-        if (ballX <= 0 || ballX >= getWidth() - 20) { // 20 es el tamaño de la pelota
-            ballDeltaX *= -1; // Cambiar dirección
+    // Método para actualizar la lógica del juego
+    private void update() {
+        if (!gameInitialised) {
+            createObjects(); // Inicializar los objetos si no está inicializado
+            gameInitialised = true;
         }
-        if (ballY <= 0 || ballY >= getHeight() - 20) {
-            ballDeltaY *= -1; // Cambiar dirección
-        }
+        ball.move(getWidth(), getHeight()); // Actualizar la posición de la bola
     }
 
     // Método para dibujar la línea punteada
@@ -53,19 +51,24 @@ public class PongPanel extends JPanel implements ActionListener {
         g2d.dispose();
     }
 
+    // Método genérico para dibujar sprites
+    private void paintSprite(Graphics g, Sprite sprite) {
+        g.setColor(sprite.getColor());
+        g.fillRect(sprite.getXPosition(), sprite.getYPosition(), sprite.getWidth(), sprite.getHeight());
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g); 
-        paintDottedLine(g); 
-
-       
-        g.setColor(Color.WHITE);
-        g.fillOval(ballX, ballY, 20, 20);
+        super.paintComponent(g);
+        paintDottedLine(g);
+        if (gameInitialised) {
+            paintSprite(g, ball); // Dibujar la bola
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        update(); 
-        repaint(); 
+        update();
+        repaint();
     }
 }
